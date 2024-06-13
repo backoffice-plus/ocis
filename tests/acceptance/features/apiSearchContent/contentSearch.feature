@@ -265,3 +265,43 @@ Feature: content search
       | old              |
       | new              |
       | spaces           |
+
+
+  Scenario: space-admin checks the audio, image, photo and location properties of PROPFIND request of file from project space
+    Given using spaces DAV path
+    And the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
+    And user "Alice" has created a space "new-space" with the default quota using the Graph API
+    And user "Alice" has uploaded a file "filesForUpload/testimage.mp3" to "testimage.mp3" in space "new-space"
+    And user "Alice" has uploaded a file "filesForUpload/testImage.jpg" to "testImage.jpg" in space "new-space"
+    When user "Alice" gets the following properties of resource "testimage.mp3" inside space "new-space" using the WebDAV API
+      | propertyName |
+      | oc:audio     |
+    Then the HTTP status code should be "207"
+    And the "PROPFIND" response should contain a space "new-space" with these key and value pairs:
+      | key                | value                          |
+      | oc:audio/oc:album  | ALBUM1234567890123456789012345 |
+      | oc:audio/oc:artist | ARTIST123456789012345678901234 |
+      | oc:audio/oc:genre  | Pop                            |
+      | oc:audio/oc:title  | TITLE1234567890123456789012345 |
+      | oc:audio/oc:track  | 1                              |
+      | oc:audio/oc:year   | 2001                           |
+    When user "Alice" gets the following properties of resource "testImage.jpg" inside space "new-space" using the WebDAV API
+        | propertyName |
+        | oc:image     |
+        | oc:location  |
+        | oc:photo     |
+    Then the HTTP status code should be "207"
+    And the "PROPFIND" response should contain a space "new-space" with these key and value pairs:
+      | key                              | value                |
+      | oc:image/oc:width                | 640                  |
+      | oc:image/oc:height               | 480                  |
+      | oc:location/oc:latitude          | 43.467157            |
+      | oc:location/oc:longitude         | 11.885395            |
+      | oc:photo/oc:camera-make          | NIKON                |
+      | oc:photo/oc:camera-model         | COOLPIX P6000        |
+      | oc:photo/oc:exposure-denominator | 178                  |
+      | oc:photo/oc:exposure-numerator   | 1                    |
+      | oc:photo/oc:f-number             | 4.5                  |
+      | oc:photo/oc:focal-length         | 6                    |
+      | oc:photo/oc:orientation          | 1                    |
+      | oc:photo/oc:taken-date-time      | 2008-10-22T16:29:49Z |
